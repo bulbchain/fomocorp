@@ -1,8 +1,8 @@
 export const SOCIAL_LINKS = {
-  twitter: 'https://twitter.com',
+  twitter: 'https://x.com/fomoCorpus',
   discord: 'https://discord.com',
   discordServer: 'https://discord.gg/FOMOCORPUS',
-  dexscreener: 'https://dexscreener.com',
+  dexscreener: 'https://pumpfun.com',
 } as const;
 
 export type SocialLinkKey = keyof typeof SOCIAL_LINKS;

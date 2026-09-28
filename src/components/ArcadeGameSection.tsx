@@ -63,7 +63,7 @@ export const ArcadeGameSection: React.FC<ArcadeGameSectionProps> = ({
 
         {/* Simulator Frame: Styled like an antique CRT containment screen */}
         <div className={`w-full bg-black border-2 border-[#111111] brutalist-shadow-xl overflow-hidden flex flex-col transition-all ${
-          isFullscreen ? 'fixed inset-2 sm:inset-4 z-50 max-h-[92vh] flex flex-col' : ''
+          isFullscreen ? 'fixed inset-0 z-50 max-h-none h-screen w-screen flex flex-col justify-between p-2 sm:p-6 bg-black/95 backdrop-blur-md' : ''
         }`}>
           {/* CRT Top Bezel Status Bar */}
           <div className="w-full bg-[#ECE8E0] border-b border-[#111111] px-3 sm:px-4 py-1.5 sm:py-2 flex flex-wrap items-center justify-between text-black font-mono text-[10px] sm:text-xs">
@@ -78,24 +78,26 @@ export const ArcadeGameSection: React.FC<ArcadeGameSectionProps> = ({
               <span className="text-[#0035c6] font-bold hidden sm:inline">PROTOCOL: OK</span>
               <button
                 onClick={() => setIsFullscreen(!isFullscreen)}
-                className="hover:text-[#FF5100] font-bold cursor-pointer underline text-[10px] sm:text-xs"
+                className="hover:text-[#FF5100] font-bold cursor-pointer underline text-[10px] sm:text-xs bg-[#FAF7EE] px-2 py-0.5 border border-[#111111]"
               >
-                {isFullscreen ? '[EXIT]' : '[EXPAND]'}
+                {isFullscreen ? '[EXIT FULLSCREEN]' : '[FULLSCREEN]'}
               </button>
             </div>
           </div>
 
           {/* Central Playable Viewport Container */}
-          <ArcadeGameCanvas
-            difficulty={difficulty}
-            soundEnabled={soundEnabled}
-            musicEnabled={musicActive}
-            isFullscreen={isFullscreen}
-            selectedCharacter={selectedCharacter}
-            onCharacterChange={setSelectedCharacter}
-            onGameOver={(_score, _high) => {}}
-            onScoreUpdate={handleScoreUpdate}
-          />
+          <div className="flex-1 flex items-center justify-center overflow-hidden w-full">
+            <ArcadeGameCanvas
+              difficulty={difficulty}
+              soundEnabled={soundEnabled}
+              musicEnabled={musicActive}
+              isFullscreen={isFullscreen}
+              selectedCharacter={selectedCharacter}
+              onCharacterChange={setSelectedCharacter}
+              onGameOver={(_score, _high) => {}}
+              onScoreUpdate={handleScoreUpdate}
+            />
+          </div>
 
           {/* Simulator Lower Control Console */}
           <div className="w-full bg-[#F1EDE5] border-t border-[#111111] p-2 sm:p-3 md:p-4 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4 font-mono text-[10px] sm:text-xs">

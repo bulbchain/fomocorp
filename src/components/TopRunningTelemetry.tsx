@@ -17,7 +17,7 @@ export const TopRunningTelemetry: React.FC = () => {
   return (
     <div className="w-full bg-[#ECE8E0] text-[#525252] border-b border-[#111111] py-1 px-4 lg:px-8 font-mono text-[10px] sm:text-xs flex flex-wrap items-center justify-between gap-3 tracking-widest uppercase select-none">
       <div className="flex items-center gap-4">
-        <span className="inline-flex items-center gap-1.5 text-[#FF2A2A] font-bold">
+        <span className="inline-flex items-center gap-1.5 text-[#FF2A2A] font-bold mt-14">
           <span className="w-1.5 h-1.5 rounded-full bg-[#FF2A2A] animate-ping"></span>
           SUBJECT 001 · SIGNAL DETECTED
         </span>

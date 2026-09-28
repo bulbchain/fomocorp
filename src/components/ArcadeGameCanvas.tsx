@@ -7,6 +7,7 @@ interface ArcadeGameCanvasProps {
   soundEnabled: boolean;
   musicEnabled: boolean;
   isFullscreen: boolean;
+  onToggleFullscreen?: () => void;
   selectedCharacter: RunnerCharacter;
   onCharacterChange: (char: RunnerCharacter) => void;
   onGameOver: (score: number, highscore: number) => void;
@@ -17,7 +18,8 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
   difficulty,
   soundEnabled,
   musicEnabled: _musicEnabled,
-  isFullscreen: _isFullscreen,
+  isFullscreen,
+  onToggleFullscreen,
   selectedCharacter,
   onCharacterChange,
   onGameOver,
@@ -148,7 +150,7 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
     sound.playClick();
   }, [difficulty, selectedCharacter, getDifficultySettings]);
 
-  // Jump action: crisp, grounded-only single jump with controlled height (no floating, no multi-jumping)
+  // Jump action
   const handleJump = useCallback(() => {
     const p = playerRef.current;
     if (gameState !== 'PLAYING') {
@@ -158,26 +160,20 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
       return;
     }
 
-    // Cooldown check to prevent accidental rapid double-firing
     const now = performance.now();
     if (now - lastJumpTimeRef.current < 200) return;
-
-    // Strict single jump: ONLY when grounded on the floor (no mid-air jumps)
     if (!p.isGrounded) return;
 
-    // Cancel slide immediately on jump
     if (p.isSliding) {
       p.isSliding = false;
       p.slideTimer = 0;
     }
 
-    // Calibrated athletic jump impulse (apex ~58px, comfortably clearing obstacles and mutagens)
     p.vy = -7.6;
     p.isGrounded = false;
     lastJumpTimeRef.current = now;
     sound.playJump();
 
-    // Jump ground dust particles
     for (let i = 0; i < 5; i++) {
       particlesRef.current.push({
         x: p.x + p.width / 2 + (Math.random() - 0.5) * 12,
@@ -199,10 +195,9 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
 
     if (p.isGrounded && !p.isSliding) {
       p.isSliding = true;
-      p.slideTimer = 34; // ~0.55 sec
+      p.slideTimer = 34;
       sound.playSlide();
 
-      // Sparks on ground
       for (let i = 0; i < 8; i++) {
         particlesRef.current.push({
           x: p.x,
@@ -228,7 +223,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
       p.invincibleTimer = 22;
       sound.playJump();
 
-      // Neon hyper speed trail
       for (let i = 0; i < 14; i++) {
         particlesRef.current.push({
           x: p.x + Math.random() * p.width,
@@ -265,7 +259,7 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
     }
   }, [gameState]);
 
-  // Touch gesture handling for mobile swipe & tap
+  // Touch gesture handling
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -286,25 +280,20 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
 
     if (gameState !== 'PLAYING') return;
 
-    // Swipe detection (vertical or horizontal)
     if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 35) {
       if (dy < -35) {
-        // Swipe Up -> Jump
         handleJump();
       } else if (dy > 35) {
-        // Swipe Down -> Slide
         handleSlide();
       }
     } else if (dx > 45 && Math.abs(dx) > Math.abs(dy)) {
-      // Swipe Right -> Dash
       handleDash();
     }
   }, [gameState, handleJump, handleSlide, handleDash]);
 
-  // Keyboard handlers with key-repeat prevention
+  // Keyboard handlers
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      // Prevent holding Space/W/Arrow from continuously spamming jumps
       if (e.repeat) return;
 
       if (['Space', 'ArrowUp', 'KeyW'].includes(e.code)) {
@@ -343,7 +332,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
       const height = canvas.height;
       const floorY = height * 0.72;
 
-      // Screen shake offset
       let shakeX = 0;
       let shakeY = 0;
       if (screenShakeRef.current > 0) {
@@ -355,11 +343,9 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
       ctx.save();
       ctx.translate(shakeX, shakeY);
 
-      // 1. CLEAR & BACKGROUND
       ctx.fillStyle = '#060a08';
       ctx.fillRect(0, 0, width, height);
 
-      // Concrete pillars in background
       const pillarCount = 8;
       const pillarWidth = width / pillarCount;
       for (let i = 0; i < pillarCount; i++) {
@@ -371,7 +357,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         ctx.strokeRect(px, 0, pillarWidth * 0.6, floorY);
       }
 
-      // Slime splatters on background walls
       ctx.fillStyle = 'rgba(203, 242, 48, 0.16)';
       ctx.beginPath();
       ctx.arc(width * 0.22, floorY - 50, 24, 0, Math.PI * 2);
@@ -379,7 +364,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
       ctx.arc(width * 0.85, floorY - 40, 28, 0, Math.PI * 2);
       ctx.fill();
 
-      // 2. 2.5D PERSPECTIVE GREEN WIREFRAME GRID FLOOR
       const horizonY = floorY - 40;
       ctx.save();
       ctx.beginPath();
@@ -423,7 +407,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
       ctx.restore();
       ctx.shadowBlur = 0;
 
-      // 3. GAMEPLAY LOGIC (WHEN PLAYING)
       if (gameState === 'PLAYING') {
         const p = playerRef.current;
         const currentSpeed = p.isDashing ? speedRef.current * 1.6 : speedRef.current;
@@ -433,10 +416,8 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         setCurrentScore(scoreRef.current);
         onScoreUpdate(scoreRef.current, multiplierRef.current);
 
-        // Gradually ramp speed gently
         speedRef.current = Math.min(speedRef.current + dt * 0.035, 13.5);
 
-        // Balanced, responsive jump physics (apex ~58px, dynamic arc, snappy non-floaty landing)
         const gravity = p.vy < 0 ? 30 : 38;
         p.vy += gravity * dt;
         p.y += p.vy;
@@ -447,7 +428,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
           p.vy = 0;
           p.isGrounded = true;
 
-          // Subtle landing dust puff
           if (wasInAir) {
             for (let k = 0; k < 4; k++) {
               particlesRef.current.push({
@@ -464,38 +444,26 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
           }
         }
 
-        // Slide Timer
         if (p.isSliding) {
           p.slideTimer--;
-          if (p.slideTimer <= 0) {
-            p.isSliding = false;
-          }
+          if (p.slideTimer <= 0) p.isSliding = false;
         }
 
-        // Dash Timer
         if (p.isDashing) {
           p.dashTimer--;
-          if (p.dashTimer <= 0) {
-            p.isDashing = false;
-          }
+          if (p.dashTimer <= 0) p.isDashing = false;
         }
 
-        // Magnet Power-up Timer
         if (p.magnetTimer > 0) {
           p.magnetTimer -= dt;
-          if (p.magnetTimer <= 0) {
-            setMagnetActive(false);
-          }
+          if (p.magnetTimer <= 0) setMagnetActive(false);
         }
 
-        if (p.invincibleTimer > 0) {
-          p.invincibleTimer--;
-        }
+        if (p.invincibleTimer > 0) p.invincibleTimer--;
 
         p.animTimer += dt * (p.isGrounded ? currentSpeed * 2.2 : 0);
         p.animFrame = Math.floor(p.animTimer) % 4;
 
-        // 4. SPAWN OBSTACLES
         spawnTimerRef.current--;
         const settings = getDifficultySettings(difficulty);
         if (spawnTimerRef.current <= 0) {
@@ -509,7 +477,7 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
           if (chosenType === 'laser') {
             obsW = 85;
             obsH = 22;
-            obsY = floorY - 72; // Sliding duck avoids it cleanly!
+            obsY = floorY - 72;
           } else if (chosenType === 'gear') {
             obsW = 42;
             obsH = 42;
@@ -517,11 +485,11 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
           } else if (chosenType === 'mouth') {
             obsW = 36;
             obsH = 26;
-            obsY = floorY - 26; // Jump over cleanly
+            obsY = floorY - 26;
           } else if (chosenType === 'slime') {
             obsW = 46;
             obsH = 15;
-            obsY = floorY - 15; // Low slime cleared by jump
+            obsY = floorY - 15;
           }
 
           obstaclesRef.current.push({
@@ -538,18 +506,13 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
           spawnTimerRef.current = Math.floor(settings.spawnRate + Math.random() * 35);
         }
 
-        // 5. SPAWN COLLECTIBLES
         collectibleTimerRef.current--;
         if (collectibleTimerRef.current <= 0) {
           const roll = Math.random();
           let cType: 'mutagen' | 'chaos_orb' | 'shield' | 'magnet' = 'mutagen';
-          if (roll > 0.88) {
-            cType = 'shield'; // rare shield repair!
-          } else if (roll > 0.75) {
-            cType = 'magnet';
-          } else if (roll > 0.5) {
-            cType = 'chaos_orb';
-          }
+          if (roll > 0.88) cType = 'shield';
+          else if (roll > 0.75) cType = 'magnet';
+          else if (roll > 0.5) cType = 'chaos_orb';
 
           collectiblesRef.current.push({
             id: Date.now() + Math.random(),
@@ -562,13 +525,11 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
           collectibleTimerRef.current = 50 + Math.floor(Math.random() * 50);
         }
 
-        // 6. UPDATE & DRAW COLLECTIBLES
         for (let i = collectiblesRef.current.length - 1; i >= 0; i--) {
           const c = collectiblesRef.current[i];
           c.x -= currentSpeed * 1.05;
           c.pulse += dt * 6;
 
-          // Magnet Attraction Effect
           if (p.magnetTimer > 0) {
             const dx = (p.x + p.width / 2) - c.x;
             const dy = (floorY - 30 + p.y) - c.y;
@@ -579,7 +540,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
             }
           }
 
-          // Check collision with player
           const playerEffectiveH = p.isSliding ? p.height * 0.45 : p.height;
           const playerBox = {
             x: p.x,
@@ -638,7 +598,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
               maxLife: 32,
             });
 
-            // Burst particles
             for (let k = 0; k < 10; k++) {
               particlesRef.current.push({
                 x: c.x,
@@ -661,7 +620,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
             continue;
           }
 
-          // Draw Collectible
           ctx.save();
           const pScale = 1 + Math.sin(c.pulse) * 0.15;
           ctx.translate(c.x, c.y);
@@ -716,7 +674,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
           ctx.restore();
         }
 
-        // 7. UPDATE & DRAW OBSTACLES
         for (let i = obstaclesRef.current.length - 1; i >= 0; i--) {
           const obs = obstaclesRef.current[i];
           obs.x -= currentSpeed;
@@ -724,7 +681,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
 
           ctx.save();
           if (obs.type === 'laser') {
-            // Laser beam with glowing particles
             ctx.shadowColor = '#FF2A2A';
             ctx.shadowBlur = 14;
             ctx.fillStyle = '#FFFFFF';
@@ -791,7 +747,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
           }
           ctx.restore();
 
-          // 8. COLLISION DETECTION (SHIELD-AWARE)
           if (p.invincibleTimer <= 0) {
             const playerEffectiveH = p.isSliding ? p.height * 0.45 : p.height;
             const playerEffectiveY = floorY - playerEffectiveH + p.y;
@@ -822,10 +777,9 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
               screenShakeRef.current = 14;
 
               if (p.shields > 1) {
-                // Shield absorbs damage!
                 p.shields--;
                 setShields(p.shields);
-                p.invincibleTimer = 70; // 1.1s invulnerability
+                p.invincibleTimer = 70;
                 sound.playShieldHit();
 
                 floatingTextsRef.current.push({
@@ -838,7 +792,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
                   maxLife: 35,
                 });
 
-                // Shield break sparks
                 for (let k = 0; k < 16; k++) {
                   particlesRef.current.push({
                     x: p.x + p.width / 2,
@@ -852,7 +805,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
                   });
                 }
               } else {
-                // Lethal hit -> GAME OVER
                 p.shields = 0;
                 setShields(0);
                 sound.playHit();
@@ -863,12 +815,9 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
                   setHighScore(finalScore);
                   try {
                     localStorage.setItem('fomo_runner_highscore', finalScore.toString());
-                  } catch {
-                    // Safe
-                  }
+                  } catch {}
                 }
 
-                // Update leaderboard
                 const newLb = [
                   ...leaderboard,
                   { score: finalScore, date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), character: selectedCharacter },
@@ -878,9 +827,7 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
                 setLeaderboard(newLb);
                 try {
                   localStorage.setItem('fomo_runner_leaderboard', JSON.stringify(newLb));
-                } catch {
-                  // Safe
-                }
+                } catch {}
 
                 onGameOver(finalScore, Math.max(finalScore, highScore));
 
@@ -907,7 +854,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         }
       }
 
-      // 9. DRAW PLAYER (BASED ON SELECTED CHARACTER)
       const p = playerRef.current;
       const isVisible = p.invincibleTimer % 4 < 2;
 
@@ -916,14 +862,12 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         const playerEffectiveH = p.isSliding ? p.height * 0.45 : p.height;
         const py = floorY - playerEffectiveH + p.y;
 
-        // Shadow under player
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
         ctx.beginPath();
         const shadowScale = Math.max(0.4, 1 - Math.abs(p.y) / 120);
         ctx.ellipse(p.x + p.width / 2, floorY + 2, (p.width / 2) * shadowScale, 6 * shadowScale, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Magnet Aura
         if (p.magnetTimer > 0) {
           ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
           ctx.lineWidth = 2;
@@ -932,7 +876,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
           ctx.stroke();
         }
 
-        // Shield Aura
         if (p.shields > 1) {
           ctx.strokeStyle = 'rgba(0, 255, 102, 0.35)';
           ctx.lineWidth = 1.5;
@@ -946,20 +889,16 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
           ctx.shadowBlur = 16;
         }
 
-        // RENDER ACCORDING TO CHARACTER
         if (selectedCharacter === 'SOMA') {
-          // FOMO SOMA MASCOT CHARACTER (Cute Alien Blob from Image 1!)
           const squash = p.isSliding ? 0.6 : p.isGrounded ? 1 + Math.sin(p.animFrame * Math.PI) * 0.08 : 0.9;
           ctx.translate(p.x + p.width / 2, py + playerEffectiveH / 2);
           ctx.scale(1, squash);
 
-          // Body (Brown / Clay tone)
           ctx.fillStyle = '#8b5a45';
           ctx.beginPath();
           ctx.ellipse(0, 0, 22, 22, 0, 0, Math.PI * 2);
           ctx.fill();
 
-          // Antenna with glowing yellow tip
           ctx.strokeStyle = '#8b5a45';
           ctx.lineWidth = 3;
           ctx.beginPath();
@@ -975,43 +914,36 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
           ctx.fill();
           ctx.shadowBlur = 0;
 
-          // Eye Sclera (White)
           ctx.fillStyle = '#FFFFFF';
           ctx.beginPath();
           ctx.arc(-2, -4, 11, 0, Math.PI * 2);
           ctx.fill();
 
-          // Eye Pupil (Tracking direction)
           ctx.fillStyle = '#1c1c17';
           ctx.beginPath();
           ctx.arc(1, -4, 5, 0, Math.PI * 2);
           ctx.fill();
 
-          // Pupil Highlight
           ctx.fillStyle = '#FFFFFF';
           ctx.beginPath();
           ctx.arc(-1, -6, 2, 0, Math.PI * 2);
           ctx.fill();
 
-          // Small stubby legs
           const legShift = p.isGrounded ? Math.sin(p.animFrame * Math.PI) * 5 : 2;
           ctx.fillStyle = '#6b3e2b';
           ctx.fillRect(-12 + legShift, 18, 7, 8);
           ctx.fillRect(5 - legShift, 18, 7, 8);
 
         } else if (selectedCharacter === 'CHRONO') {
-          // CHRONO-MITE (Clockwork Brass Automaton)
           ctx.translate(p.x + p.width / 2, py + playerEffectiveH / 2);
           ctx.rotate(time * 0.002);
 
-          // Outer Brass Ring
           ctx.strokeStyle = '#f59e0b';
           ctx.lineWidth = 4;
           ctx.beginPath();
           ctx.arc(0, 0, 22, 0, Math.PI * 2);
           ctx.stroke();
 
-          // Inner Mechanism & Lens
           ctx.fillStyle = '#1e293b';
           ctx.beginPath();
           ctx.arc(0, 0, 16, 0, Math.PI * 2);
@@ -1023,61 +955,52 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
           ctx.fill();
 
         } else {
-          // DEFAULT: PIXEL ZOMBIE SCIENTIST (Image 2 Archetype)
           if (p.isSliding) {
-            ctx.fillStyle = '#1c1b1b'; // Pants
+            ctx.fillStyle = '#1c1b1b';
             ctx.fillRect(p.x, py + 14, 28, 14);
 
-            ctx.fillStyle = '#FFFFFF'; // Lab coat
+            ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(p.x + 8, py + 8, 30, 16);
 
-            ctx.fillStyle = '#55a855'; // Zombie head
+            ctx.fillStyle = '#55a855';
             ctx.fillRect(p.x + 28, py + 2, 16, 16);
 
-            ctx.fillStyle = '#111111'; // Eye
+            ctx.fillStyle = '#111111';
             ctx.fillRect(p.x + 38, py + 6, 4, 4);
 
-            ctx.fillStyle = '#FF5100'; // Slide sparks
+            ctx.fillStyle = '#FF5100';
             ctx.fillRect(p.x - 6, py + 24, 8, 3);
           } else {
             const legOffset = p.isGrounded ? Math.sin(p.animFrame * Math.PI * 0.5) * 6 : 4;
 
-            // Head (Green Zombie Scientist skin)
             ctx.fillStyle = '#52965e';
             ctx.fillRect(p.x + 10, py, 24, 22);
 
-            // Hair
             ctx.fillStyle = '#2d5a37';
             ctx.fillRect(p.x + 8, py, 28, 6);
 
-            // Eyes & Snarl Mouth
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(p.x + 24, py + 8, 6, 6);
             ctx.fillStyle = '#111111';
             ctx.fillRect(p.x + 27, py + 9, 3, 4);
 
-            // Teeth
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(p.x + 18, py + 16, 12, 4);
             ctx.fillStyle = '#111111';
             ctx.fillRect(p.x + 20, py + 17, 2, 3);
             ctx.fillRect(p.x + 26, py + 17, 2, 3);
 
-            // White Lab Coat
             ctx.fillStyle = '#e5e5e5';
             ctx.fillRect(p.x + 8, py + 22, 26, 24);
 
-            // Shirt
             ctx.fillStyle = '#1e293b';
             ctx.fillRect(p.x + 18, py + 24, 8, 18);
 
-            // Arms swinging
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(p.x + (legOffset > 0 ? 30 : 2), py + 24, 8, 14);
             ctx.fillStyle = '#52965e';
             ctx.fillRect(p.x + (legOffset > 0 ? 32 : 0), py + 34, 6, 6);
 
-            // Legs & Boots
             ctx.fillStyle = '#1e293b';
             ctx.fillRect(p.x + 10 - legOffset, py + 46, 8, 12);
             ctx.fillRect(p.x + 24 + legOffset, py + 46, 8, 12);
@@ -1091,7 +1014,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         ctx.restore();
       }
 
-      // 10. DRAW FLOATING COMBOS & TEXTS
       for (let i = floatingTextsRef.current.length - 1; i >= 0; i--) {
         const ft = floatingTextsRef.current[i];
         ft.y -= 1.2;
@@ -1110,7 +1032,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         }
       }
 
-      // 11. DRAW PARTICLES
       for (let i = particlesRef.current.length - 1; i >= 0; i--) {
         const pt = particlesRef.current[i];
         pt.x += pt.vx;
@@ -1127,7 +1048,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         }
       }
 
-      // 12. CRT TITLE MENU OVERLAY
       if (gameState === 'MENU') {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.78)';
         ctx.fillRect(0, 0, width, height);
@@ -1143,7 +1063,7 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
 
         ctx.fillStyle = '#FF5100';
         ctx.font = '11px "Space Mono", monospace';
-        ctx.fillText('CONTROLS: [SPACE/W] JUMP (DOUBLE JUMP) • [S/DOWN] SLIDE • [SHIFT] DASH • [P] PAUSE', width / 2, height / 2 + 10);
+        ctx.fillText('CONTROLS: [SPACE/W] JUMP • [S/DOWN] SLIDE • [SHIFT] DASH • [P] PAUSE', width / 2, height / 2 + 10);
 
         ctx.fillStyle = '#cbf230';
         ctx.font = 'bold 15px "Space Mono", monospace';
@@ -1153,7 +1073,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         }
       }
 
-      // 13. PAUSED OVERLAY
       if (gameState === 'PAUSED') {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
         ctx.fillRect(0, 0, width, height);
@@ -1168,7 +1087,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         ctx.fillText('PRESS [P] OR CLICK RESUME TO CONTINUE', width / 2, height / 2 + 15);
       }
 
-      // 14. GAME OVER OVERLAY (WITH LEADERBOARD)
       if (gameState === 'GAMEOVER') {
         ctx.fillStyle = 'rgba(10, 0, 0, 0.85)';
         ctx.fillRect(0, 0, width, height);
@@ -1183,7 +1101,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         ctx.fillText(`FINAL RUN SCORE: ${scoreRef.current.toLocaleString()} PTS`, width / 2, height / 2 - 60);
         ctx.fillText(`MUTAGENS EXTRACTED: ${mutagensCollected}  •  SPECIMEN: ${selectedCharacter}`, width / 2, height / 2 - 38);
 
-        // Leaderboard top 3
         ctx.fillStyle = '#ECE8E0';
         ctx.font = 'bold 11px "Space Mono", monospace';
         ctx.fillText('─── TOP CONTAINMENT RECORDS ───', width / 2, height / 2 - 12);
@@ -1206,7 +1123,7 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         }
       }
 
-      ctx.restore(); // Undo screen shake
+      ctx.restore();
       animationFrameId.current = requestAnimationFrame(loop);
     };
 
@@ -1221,7 +1138,7 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
 
   return (
     <div
-      className="relative w-full aspect-[16/9] sm:aspect-[16/9] max-h-[620px] bg-black overflow-hidden flex items-center justify-center select-none"
+      className="relative w-full h-[75vh] sm:h-auto sm:aspect-[16/9] max-h-[85vh] sm:max-h-[620px] bg-black overflow-hidden flex items-center justify-center select-none"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -1229,7 +1146,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         ref={canvasRef}
         width={960}
         height={540}
-        className="w-full h-full object-contain"
         onClick={() => {
           if (gameState === 'MENU' || gameState === 'GAMEOVER') {
             startGame();
@@ -1245,7 +1161,7 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
       <div className="absolute inset-0 pointer-events-none crt-bloom"></div>
 
       {/* Top Left Game Telemetry HUD inside CRT screen */}
-      <div className="absolute top-2 sm:top-5 left-2 sm:left-5 bg-black/85 border border-[#cbf230]/70 p-1.5 sm:p-2.5 font-mono text-[9px] sm:text-xs text-[#cbf230] backdrop-blur-sm pointer-events-none leading-relaxed">
+      <div className="absolute top-2 sm:top-5 left-2 sm:left-5 bg-black/85 border border-[#cbf230]/70 p-1.5 sm:p-2.5 font-mono text-[9px] sm:text-xs text-[#cbf230] backdrop-blur-sm pointer-events-none leading-relaxed z-20">
         <div className="text-white font-bold text-[10px] sm:text-xs">HIGH: {highScore.toLocaleString()}</div>
         <div className="hidden sm:inline">&gt; SEED: ESCAPE</div>
         <div>
@@ -1256,27 +1172,43 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         </div>
       </div>
 
-      {/* Top Right Leaderboard Overlay (Shield Cells & Multiplier) */}
-      <div className="absolute top-2 sm:top-5 right-2 sm:right-5 bg-black/85 border border-[#FF5100]/70 p-1.5 sm:p-2.5 font-mono text-[9px] sm:text-xs text-right backdrop-blur-sm pointer-events-none leading-relaxed">
-        {/* Shield Cells */}
-        <div className="flex items-center justify-end gap-0.5 sm:gap-1 mb-1">
-          <span className="text-[#858383] text-[8px] sm:text-[9px] mr-0.5 sm:mr-1">SHIELDS:</span>
-          {Array.from({ length: 4 }).map((_, i) => (
-            <span
-              key={i}
-              className={`inline-block w-2 h-3 sm:w-2.5 sm:h-3.5 border ${
-                i < shields
-                  ? 'bg-[#00FF66] border-[#00FF66] shadow-[0_0_6px_#00FF66]'
-                  : 'bg-neutral-800 border-neutral-600 opacity-40'
-              }`}
-            />
-          ))}
-        </div>
-        <div className="text-[#FF5100] font-bold text-[10px] sm:text-xs">CHAOS: {multiplier}X</div>
-        <div className="text-[#cbf230] text-[10px] sm:text-xs">MUTAGENS: {mutagensCollected}</div>
-        <div className="text-[#38bdf8] font-bold text-[10px] sm:text-xs">
-          {selectedCharacter}
-          {magnetActive && <span className="ml-1 text-[#cbf230] animate-pulse">🧲</span>}
+      {/* Top Right Controls: Fullscreen Close Toggle & Stats HUD */}
+      <div className="absolute top-2 sm:top-5 right-2 sm:right-5 flex flex-col items-end gap-1.5 z-30 pointer-events-auto">
+        {/* Full-Screen Close / Toggle Button */}
+        {onToggleFullscreen && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleFullscreen();
+            }}
+            className="bg-black/90 hover:bg-[#FF5100] hover:text-black text-white border border-[#cbf230]/60 px-2 sm:px-3 py-1 font-mono text-[9px] sm:text-[11px] uppercase font-bold tracking-wider cursor-pointer backdrop-blur-sm transition-colors shadow-md"
+            title="Toggle Fullscreen"
+          >
+            {isFullscreen ? '[ 🗗 EXIT FULLSCREEN ]' : '[ ⛶ FULLSCREEN ]'}
+          </button>
+        )}
+
+        {/* Leaderboard Overlay / Shield Status HUD */}
+        <div className="bg-black/85 border border-[#FF5100]/70 p-1.5 sm:p-2.5 font-mono text-[9px] sm:text-xs text-right backdrop-blur-sm pointer-events-none leading-relaxed">
+          <div className="flex items-center justify-end gap-0.5 sm:gap-1 mb-1">
+            <span className="text-[#858383] text-[8px] sm:text-[9px] mr-0.5 sm:mr-1">SHIELDS:</span>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <span
+                key={i}
+                className={`inline-block w-2 h-3 sm:w-2.5 sm:h-3.5 border ${
+                  i < shields
+                    ? 'bg-[#00FF66] border-[#00FF66] shadow-[0_0_6px_#00FF66]'
+                    : 'bg-neutral-800 border-neutral-600 opacity-40'
+                }`}
+              />
+            ))}
+          </div>
+          <div className="text-[#FF5100] font-bold text-[10px] sm:text-xs">CHAOS: {multiplier}X</div>
+          <div className="text-[#cbf230] text-[10px] sm:text-xs">MUTAGENS: {mutagensCollected}</div>
+          <div className="text-[#38bdf8] font-bold text-[10px] sm:text-xs">
+            {selectedCharacter}
+            {magnetActive && <span className="ml-1 text-[#cbf230] animate-pulse">🧲</span>}
+          </div>
         </div>
       </div>
 
@@ -1293,7 +1225,6 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
       {/* Menu Mode: Start & Character Selector */}
       {gameState === 'MENU' && (
         <div className="absolute bottom-4 sm:bottom-5 inset-x-3 sm:inset-x-8 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 z-20">
-          {/* Character Quick Switcher */}
           <div className="bg-black/90 border border-white/30 p-1 sm:p-1.5 flex items-center gap-1 sm:gap-1.5 font-mono text-[10px] sm:text-xs text-white">
             <span className="text-[#858383] text-[9px] sm:text-[10px] pl-1">RUNNER:</span>
             {(['ALPHA', 'SOMA', 'CHRONO'] as RunnerCharacter[]).map((char) => (
@@ -1353,7 +1284,7 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
         </div>
       )}
 
-      {/* On-Screen Mobile Touch Controls (Always available during active play) */}
+      {/* On-Screen Mobile Touch Controls */}
       {gameState === 'PLAYING' && (
         <div className="absolute bottom-2 sm:bottom-3 inset-x-2 sm:inset-x-6 flex items-center justify-between pointer-events-auto z-20 select-none gap-2">
           <button
@@ -1366,7 +1297,7 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
               e.stopPropagation();
               handleSlide();
             }}
-            className="bg-black/90 active:bg-[#FF5100] text-white border-2 border-[#FF5100] px-3 sm:px-4 py-2 sm:py-2.5 font-mono text-[10px] sm:text-xs font-bold uppercase rounded-none brutalist-shadow-sm active:translate-y-0.5 cursor-pointer flex-1"
+            className="bg-black/90 active:bg-[#FF5100] text-white border-2 border-[#FF5100] px-3 sm:px-4 py-2 sm:py-2.5 font-mono text-[10px] sm:text-xs font-bold uppercase rounded-none brutalist-shadow-sm active:translate-y-0.5 cursor-pointer flex-1 touch-manipulation"
           >
             ⬇ SLIDE
           </button>
@@ -1381,7 +1312,7 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
               e.stopPropagation();
               handleDash();
             }}
-            className="bg-black/90 active:bg-[#cbf230] active:text-black text-white border-2 border-white/60 px-3 sm:px-4 py-2 sm:py-2.5 font-mono text-[10px] sm:text-xs font-bold uppercase rounded-none brutalist-shadow-sm active:translate-y-0.5 cursor-pointer flex-1"
+            className="bg-black/90 active:bg-[#cbf230] active:text-black text-white border-2 border-white/60 px-3 sm:px-4 py-2 sm:py-2.5 font-mono text-[10px] sm:text-xs font-bold uppercase rounded-none brutalist-shadow-sm active:translate-y-0.5 cursor-pointer flex-1 touch-manipulation"
           >
             ⚡ DASH
           </button>
@@ -1396,7 +1327,7 @@ export const ArcadeGameCanvas: React.FC<ArcadeGameCanvasProps> = ({
               e.stopPropagation();
               handleJump();
             }}
-            className="bg-[#cbf230] active:bg-[#FF5100] text-[#171e00] border-2 border-black px-4 sm:px-5 py-2 sm:py-2.5 font-mono text-[10px] sm:text-xs font-bold uppercase rounded-none brutalist-shadow-sm active:translate-y-0.5 cursor-pointer flex-1"
+            className="bg-[#cbf230] active:bg-[#FF5100] text-[#171e00] border-2 border-black px-4 sm:px-5 py-2 sm:py-2.5 font-mono text-[10px] sm:text-xs font-bold uppercase rounded-none brutalist-shadow-sm active:translate-y-0.5 cursor-pointer flex-1 touch-manipulation"
           >
             ⬆ JUMP
           </button>
