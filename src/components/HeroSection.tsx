@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { sound } from '../utils/audio';
 import { SpecimenLogo } from './SpecimenLogo';
-
+import logoimage from '../asset/logo.png';
+import { SOCIAL_LINKS } from '../constants/socialLinks';
 interface HeroSectionProps {
   onPlayClick: () => void;
   onAcquireClick: () => void;
@@ -37,7 +38,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   const handleCopy = () => {
     sound.playClick();
-    navigator.clipboard.writeText('0x98A47F23E90b1c9F7c3d18B47890AA40F4E9b83C');
+    navigator.clipboard.writeText(SOCIAL_LINKS.CA);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -142,7 +143,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   CA:
                 </span>
                 <code className="font-mono text-[10px] sm:text-xs font-bold text-black truncate select-all">
-                  0x98A47F23E90b1c9F7c3d18B47890AA40F4E9b83C
+                  {SOCIAL_LINKS.CA}
                 </code>
               </div>
               <button
@@ -199,7 +200,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     transition: 'transform 0.15s ease-out',
                   }}
                   className="w-full h-full object-contain filter drop-shadow-[0_16px_28px_rgba(0,0,0,0.18)] select-none pointer-events-auto"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWJdrmly_8Pf7BSidH_UsACNZmQA8KntHGKjgB6lz1BeOVltx0MF6HqYxoHdpRl8duQoApRPRMrtqEl37VUV07ygsexKWNu-7_4qiTzf7fZOdRJdtyTr3cMSTUIRa42PpmhgluD8D8d6zMVuoPE97K0feClxtx_jgpr59Ut31N9U6eiGRxgP7eCLnmFMQZyIjxiV6LuluaVa_OBUoC-7dyNVY9TCjalExbvOd-iN8eJP9Tso6jPQQS"
+                 // src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWJdrmly_8Pf7BSidH_UsACNZmQA8KntHGKjgB6lz1BeOVltx0MF6HqYxoHdpRl8duQoApRPRMrtqEl37VUV07ygsexKWNu-7_4qiTzf7fZOdRJdtyTr3cMSTUIRa42PpmhgluD8D8d6zMVuoPE97K0feClxtx_jgpr59Ut31N9U6eiGRxgP7eCLnmFMQZyIjxiV6LuluaVa_OBUoC-7dyNVY9TCjalExbvOd-iN8eJP9Tso6jPQQS"
+                      src={logoimage}
                 />
 
                 {/* Dynamic Scan Reticle Circle Overlay */}

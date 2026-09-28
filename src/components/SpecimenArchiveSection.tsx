@@ -4,6 +4,7 @@ import { Specimen } from '../types';
 import { SpecimenModal } from './SpecimenModal';
 import { SpecimenLogo } from './SpecimenLogo';
 import { sound } from '../utils/audio';
+import logo from '../asset/logo.png';
 
 export const SpecimenArchiveSection: React.FC = () => {
   const [selectedSpecimen, setSelectedSpecimen] = useState<Specimen | null>(null);
@@ -54,9 +55,9 @@ export const SpecimenArchiveSection: React.FC = () => {
               {/* Specimen Image Viewport */}
               <div className="relative w-full aspect-square bg-[#F1EDE5] p-3 sm:p-4 overflow-hidden border-b border-[#111111] flex items-center justify-center">
                 <img
-                  alt="Specimen 001 FOMO SOMA"
+                  alt="Specimen 001 FOMO CORPUS"
                   className="w-full h-full object-contain filter group-hover:scale-105 transition-transform duration-300"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWJdrmly_8Pf7BSidH_UsACNZmQA8KntHGKjgB6lz1BeOVltx0MF6HqYxoHdpRl8duQoApRPRMrtqEl37VUV07ygsexKWNu-7_4qiTzf7fZOdRJdtyTr3cMSTUIRa42PpmhgluD8D8d6zMVuoPE97K0feClxtx_jgpr59Ut31N9U6eiGRxgP7eCLnmFMQZyIjxiV6LuluaVa_OBUoC-7dyNVY9TCjalExbvOd-iN8eJP9Tso6jPQQS"
+                  src={logo}
                 />
                 <span className="absolute top-2 left-2 font-mono text-[9px] sm:text-[10px] text-[#525252]">
                   [SOMA_GEN_01]
@@ -69,7 +70,7 @@ export const SpecimenArchiveSection: React.FC = () => {
               {/* Details */}
               <div className="p-3 sm:p-5">
                 <h3 className="font-grotesk text-base sm:text-lg lg:text-xl uppercase text-black font-bold mb-1">
-                  FOMO SOMA (ALPHA BLOB)
+                  FOMO CORPUS (ALPHA BLOB)
                 </h3>
                 <p className="font-grotesk text-[11px] sm:text-xs md:text-sm text-[#525252] mb-3 sm:mb-4 leading-relaxed">
                   The progenitor organism. Displays uncanny social intuition and high emotional mimicry. Refuses containment protocols.

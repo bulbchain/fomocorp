@@ -35,7 +35,7 @@ export const Header: React.FC<HeaderProps> = ({
   const handleCopyContract = (e: React.MouseEvent) => {
     e.stopPropagation();
     sound.playClick();
-    navigator.clipboard.writeText('0x98A47F23E90b1c9F7c3d18B47890AA40F4E9b83C');
+    navigator.clipboard.writeText(SOCIAL_LINKS.CA);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

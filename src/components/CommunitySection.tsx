@@ -36,10 +36,10 @@ export const CommunitySection: React.FC<CommunitySectionProps> = () => {
       newOutput.push('CONTAINMENT STATUS: 99.8% SECURE. WARNING: TANK 01 GLASS MICRO-FRACTURES DETECTED.');
     } else if (cmd === 'fomo') {
       newOutput.push('CURRENT FOMO LEVEL: 97.8% [CRITICAL METRIC]. HAZARD WARNING ACTIVE.');
-    } else if (cmd === 'discord') {
-      newOutput.push(`DISCORD DISPATCH: SECURE DISCORD SERVER AT ${SOCIAL_LINKS.discordServer}. 14,800 RESEARCHERS ONLINE.`);
+    } else if (cmd === 'launch') {
+      newOutput.push(`LAUNCH DISPATCH: SECURE LAUNCH SERVER AT ${SOCIAL_LINKS.discordServer}. 14,800 RESEARCHERS ONLINE.`);
     } else if (cmd === 'chart') {
-      newOutput.push('MARKET RADAR: CA 0x98A47F23E90b1c9F7c3d18B47890AA40F4E9b83C TRACKED ON DEXSCREENER & PUMP.FUN.');
+      newOutput.push('MARKET RADAR: CA WILL BE TRACKED ON DEXSCREENER & PUMP.FUN.');
     } else if (cmd === 'manifesto') {
       setManifestoOpen(true);
       newOutput.push('DECRYPTING UNRESTRICTED MANIFESTO VOL 01...');
@@ -112,8 +112,8 @@ export const CommunitySection: React.FC<CommunitySectionProps> = () => {
             className="bg-[#FAF7EE] border-2 border-[#111111] px-4 sm:px-6 py-3 sm:py-4 font-grotesk text-sm sm:text-base lg:text-lg uppercase font-bold text-black brutalist-shadow hover:bg-[#cbf230] hover:text-[#171e00] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all flex items-center justify-between cursor-pointer group"
           >
             <div className="flex items-center gap-2">
-              <span className="font-mono text-[10px] sm:text-xs text-[#0035c6] group-hover:text-[#171e00]">[DISCORD]</span>
-              <span>ENTER DISCORD LAB</span>
+              <span className="font-mono text-[10px] sm:text-xs text-[#0035c6] group-hover:text-[#171e00]">[IN PROGRESS..]</span>
+              <span>ENTER LAUNCH LAB</span>
             </div>
             <span className="text-lg sm:text-xl">↗</span>
           </a>
@@ -143,7 +143,7 @@ export const CommunitySection: React.FC<CommunitySectionProps> = () => {
           >
             <div className="flex items-center gap-2">
               <span className="font-mono text-[10px] sm:text-xs text-[#cbf230] group-hover:text-black">[CHART]</span>
-              <span>DEXSCREENER RADAR</span>
+              <span>PUMPFUN RADAR</span>
             </div>
             <span className="text-lg sm:text-xl">↗</span>
           </a>
@@ -183,7 +183,7 @@ export const CommunitySection: React.FC<CommunitySectionProps> = () => {
           {/* Quick command buttons */}
           <div className="flex flex-wrap gap-1 sm:gap-1.5 mb-2 sm:mb-3 pt-1.5 sm:pt-2 border-t border-neutral-800">
             <span className="text-[#858383] text-[9px] sm:text-[10px] self-center mr-0.5 sm:mr-1">QUICK:</span>
-            {['specimens', 'containment', 'fomo', 'discord', 'chart', 'manifesto', 'signal'].map((c) => (
+            {['specimens', 'containment', 'fomo', 'launch', 'chart', 'manifesto', 'signal'].map((c) => (
               <button
                 key={c}
                 onClick={() => handleQuickCmd(c)}

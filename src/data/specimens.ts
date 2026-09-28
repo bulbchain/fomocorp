@@ -1,15 +1,15 @@
 import { Specimen } from '../types';
-
+import logo  from '../asset/logo.png';
 export const SPECIMENS: Specimen[] = [
   {
     id: 'soma-001',
     ref: 'SPEC-001',
-    name: 'FOMO SOMA (ALPHA BLOB)',
+    name: 'FOMO CORPUS (ALPHA BLOB)',
     subtitle: 'The progenitor organism. Displays uncanny social intuition and high emotional mimicry.',
     rarity: 'EXOTIC',
     rarityColor: '#171e00',
     rarityBg: '#cbf230',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCWJdrmly_8Pf7BSidH_UsACNZmQA8KntHGKjgB6lz1BeOVltx0MF6HqYxoHdpRl8duQoApRPRMrtqEl37VUV07ygsexKWNu-7_4qiTzf7fZOdRJdtyTr3cMSTUIRa42PpmhgluD8D8d6zMVuoPE97K0feClxtx_jgpr59Ut31N9U6eiGRxgP7eCLnmFMQZyIjxiV6LuluaVa_OBUoC-7dyNVY9TCjalExbvOd-iN8eJP9Tso6jPQQS',
+    image: logo,
     chaosRating: '99%',
     containment: 'TANK 01 [LEAKING]',
     reproductiveRate: 'EXPONENTIAL',

@@ -1,4 +1,5 @@
 import React from 'react';
+import logoimage from '../asset/logo.png';
 
 interface SpecimenLogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -35,8 +36,9 @@ export const SpecimenLogo: React.FC<SpecimenLogoProps> = ({
 
         {/* Specimen Silhouette / Mascot graphic */}
         <img
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWJdrmly_8Pf7BSidH_UsACNZmQA8KntHGKjgB6lz1BeOVltx0MF6HqYxoHdpRl8duQoApRPRMrtqEl37VUV07ygsexKWNu-7_4qiTzf7fZOdRJdtyTr3cMSTUIRa42PpmhgluD8D8d6zMVuoPE97K0feClxtx_jgpr59Ut31N9U6eiGRxgP7eCLnmFMQZyIjxiV6LuluaVa_OBUoC-7dyNVY9TCjalExbvOd-iN8eJP9Tso6jPQQS"
-          alt="FOMO SOMA Specimen Emblem"
+         // src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWJdrmly_8Pf7BSidH_UsACNZmQA8KntHGKjgB6lz1BeOVltx0MF6HqYxoHdpRl8duQoApRPRMrtqEl37VUV07ygsexKWNu-7_4qiTzf7fZOdRJdtyTr3cMSTUIRa42PpmhgluD8D8d6zMVuoPE97K0feClxtx_jgpr59Ut31N9U6eiGRxgP7eCLnmFMQZyIjxiV6LuluaVa_OBUoC-7dyNVY9TCjalExbvOd-iN8eJP9Tso6jPQQS"
+         src={logoimage} 
+         alt="FOMO Corpus Specimen Emblem"
           className={`${dimensions.img} object-contain transition-transform duration-200 group-hover:scale-110 pointer-events-none filter drop-shadow-sm`}
         />
 
@@ -49,7 +51,7 @@ export const SpecimenLogo: React.FC<SpecimenLogoProps> = ({
       {showText && (
         <div className="flex flex-col text-left">
           <span className={`font-syne font-extrabold uppercase tracking-tight text-black leading-none ${dimensions.text}`}>
-            FOMO SOMA
+            FOMO CORPUS
           </span>
           <span className="font-mono text-[9px] uppercase tracking-wider text-[#FF5100] font-bold">
             SPECIMEN: 001
