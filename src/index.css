@@ -1,0 +1,176 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-syne: 'Syne', sans-serif;
+    --font-grotesk: 'Space Grotesk', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+    --font-pixel: 'Press Start 2P', monospace;
+  }
+
+  body {
+    font-family: var(--font-grotesk);
+    background-color: #FAF7EE;
+    color: #1c1c17;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #F1EDE5;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #111111;
+  }
+}
+
+/* Typography Utility Classes matching design system */
+.font-syne {
+  font-family: var(--font-syne);
+}
+.font-grotesk {
+  font-family: var(--font-grotesk);
+}
+.font-mono-archival {
+  font-family: var(--font-mono);
+}
+.font-pixel {
+  font-family: var(--font-pixel);
+}
+
+/* Design Colors */
+.bg-parchment-bright {
+  background-color: #FAF7EE;
+}
+.bg-surface-container {
+  background-color: #F1EDE5;
+}
+.bg-surface-container-low {
+  background-color: #F7F3EB;
+}
+.bg-surface-container-high {
+  background-color: #ECE8E0;
+}
+.bg-surface-container-lowest {
+  background-color: #FFFFFF;
+}
+
+.border-wireframe {
+  border-color: #111111;
+}
+
+.text-hazard-orange {
+  color: #FF5100;
+}
+.bg-hazard-orange {
+  background-color: #FF5100;
+}
+
+.text-classified-red {
+  color: #FF2A2A;
+}
+.bg-classified-red {
+  background-color: #FF2A2A;
+}
+
+.text-tertiary-fixed {
+  color: #CBF230;
+}
+.bg-tertiary-fixed {
+  background-color: #CBF230;
+}
+.text-on-tertiary-fixed {
+  color: #171E00;
+}
+
+.text-ink-muted {
+  color: #525252;
+}
+
+/* Brutalist Shadows */
+.brutalist-shadow-sm {
+  box-shadow: 2px 2px 0px #111111;
+}
+.brutalist-shadow {
+  box-shadow: 4px 4px 0px #111111;
+}
+.brutalist-shadow-lg {
+  box-shadow: 6px 6px 0px #111111;
+}
+.brutalist-shadow-xl {
+  box-shadow: 8px 8px 0px #111111;
+}
+.brutalist-shadow-orange {
+  box-shadow: 4px 4px 0px #FF5100;
+}
+.brutalist-shadow-neon {
+  box-shadow: 4px 4px 0px #CBF230;
+}
+
+/* Marquee animations */
+@keyframes marqueeLeft {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marqueeRight {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+
+.animate-marquee-left {
+  display: flex;
+  width: max-content;
+  animation: marqueeLeft 28s linear infinite;
+}
+
+.animate-marquee-right {
+  display: flex;
+  width: max-content;
+  animation: marqueeRight 24s linear infinite;
+}
+
+.animate-marquee-left:hover,
+.animate-marquee-right:hover {
+  animation-play-state: paused;
+}
+
+/* CRT Scanlines and Screen Glitch */
+.crt-overlay {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.25) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.04),
+    rgba(0, 255, 0, 0.02),
+    rgba(0, 0, 255, 0.04)
+  );
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+}
+
+.crt-bloom {
+  box-shadow: inset 0 0 40px rgba(0, 255, 128, 0.12), inset 0 0 100px rgba(0, 0, 0, 0.7);
+}
+
+/* Technical Grid Pattern */
+.bg-tech-grid {
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.bg-dark-grid {
+  background-image: 
+    linear-gradient(to right, rgba(0, 255, 128, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 255, 128, 0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
