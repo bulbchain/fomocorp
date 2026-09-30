@@ -6,4 +6,5 @@ export const SOCIAL_LINKS = {
   CA:"FS462XgSoCvDMaRDAh9VNoLuohMFtfJz2DjVcntDpump",
 } as const;
 
+
 export type SocialLinkKey = keyof typeof SOCIAL_LINKS;
